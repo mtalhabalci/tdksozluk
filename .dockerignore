@@ -2,6 +2,10 @@
 **/bin/
 **/obj/
 **/out/
+**/node_modules/
+.git/
+sqlite-data/
+backups/
 
 # files
 Dockerfile*

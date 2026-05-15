@@ -2,8 +2,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
 WORKDIR /AspnetCoreMvcStarter
 
+# Install Node.js 20 (gulp/webpack frontend build için)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy everything
 COPY . ./
+
+# Frontend assets (gulp): node_modules + production build
+RUN npm install --legacy-peer-deps \
+    && npm run build:prod \
+    && npm run build:prod:css \
+    && npm run build:prod:fonts
+
 # Restore as distinct layers
 RUN dotnet restore
 
