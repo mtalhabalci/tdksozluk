@@ -1,14 +1,1 @@
-/**
- * Send Invoice Offcanvas
- */
-
-'use strict';
-
-document.addEventListener('DOMContentLoaded', function (e) {
-  // Send invoice textarea
-  const invoiceMsg = document.querySelector('#invoice-message');
-
-  const trimMsg = invoiceMsg.textContent.replace(/^\s+|\s+$/gm, '');
-
-  invoiceMsg.value = trimMsg;
-});
+"use strict";document.addEventListener("DOMContentLoaded",function(e){var t=document.querySelector("#invoice-message"),n=t.textContent.replace(/^\s+|\s+$/gm,"");t.value=n});

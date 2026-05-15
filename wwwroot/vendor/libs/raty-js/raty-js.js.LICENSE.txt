@@ -1,0 +1,7 @@
+/*!
+ * Raty - A Star Rating Plugin
+ *
+ * author: Washington Botelho
+ * github: wbotelhos/raty
+ * version: 4.3.0
+ */

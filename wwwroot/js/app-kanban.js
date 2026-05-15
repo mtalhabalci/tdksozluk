@@ -1,81 +1,4 @@
-/**
- * App Kanban
- */
-
-'use strict';
-
-(async function () {
-  let boards;
-  const kanbanSidebar = document.querySelector('.kanban-update-item-sidebar'),
-    kanbanWrapper = document.querySelector('.kanban-wrapper'),
-    commentEditor = document.querySelector('.comment-editor'),
-    kanbanAddNewBoard = document.querySelector('.kanban-add-new-board'),
-    kanbanAddNewInput = [].slice.call(document.querySelectorAll('.kanban-add-board-input')),
-    kanbanAddBoardBtn = document.querySelector('.kanban-add-board-btn'),
-    datePicker = document.querySelector('#due-date'),
-    select2 = $('.select2'), // ! Using jquery vars due to select2 jQuery dependency
-    assetsPath = document.querySelector('html').getAttribute('data-assets-path');
-
-  // Init kanban Offcanvas
-  const kanbanOffcanvas = new bootstrap.Offcanvas(kanbanSidebar);
-
-  // Get kanban data
-  const kanbanResponse = await fetch(assetsPath + 'json/kanban.json');
-  if (!kanbanResponse.ok) {
-    console.error('error', kanbanResponse);
-  }
-  boards = await kanbanResponse.json();
-
-  // datepicker init
-  if (datePicker) {
-    datePicker.flatpickr({
-      monthSelectorType: 'static',
-      static: true,
-      altInput: true,
-      altFormat: 'j F, Y',
-      dateFormat: 'Y-m-d'
-    });
-  }
-
-  //! TODO: Update Event label and guest code to JS once select removes jQuery dependency
-  // select2
-  if (select2.length) {
-    function renderLabels(option) {
-      if (!option.id) {
-        return option.text;
-      }
-      var $badge = "<div class='badge " + $(option.element).data('color') + " rounded-pill'> " + option.text + '</div>';
-      return $badge;
-    }
-
-    select2.each(function () {
-      var $this = $(this);
-      select2Focus($this);
-      $this.wrap().select2({
-        placeholder: 'Select Label',
-        dropdownParent: $this.parent(),
-        templateResult: renderLabels,
-        templateSelection: renderLabels,
-        escapeMarkup: function (es) {
-          return es;
-        }
-      });
-    });
-  }
-
-  // Comment editor
-  if (commentEditor) {
-    new Quill(commentEditor, {
-      modules: {
-        toolbar: '.comment-toolbar'
-      },
-      placeholder: 'Write a Comment...',
-      theme: 'snow'
-    });
-  }
-
-  // Render board dropdown
-  const renderBoardDropdown = () => `
+"use strict";!async function(){const o=document.querySelector(".kanban-update-item-sidebar"),e=document.querySelector(".kanban-wrapper"),t=document.querySelector(".comment-editor"),r=document.querySelector(".kanban-add-new-board"),d=[].slice.call(document.querySelectorAll(".kanban-add-board-input")),a=document.querySelector(".kanban-add-board-btn"),n=document.querySelector("#due-date"),i=$(".select2"),s=document.querySelector("html").getAttribute("data-assets-path"),l=new bootstrap.Offcanvas(o);var c=await fetch(s+"json/kanban.json");function m(e){return e.id?"<div class='badge "+$(e.element).data("color")+" rounded-pill'> "+e.text+"</div>":e.text}c.ok||console.error("error",c),c=await c.json(),n&&n.flatpickr({monthSelectorType:"static",static:!0,altInput:!0,altFormat:"j F, Y",dateFormat:"Y-m-d"}),i.length&&i.each(function(){var e=$(this);select2Focus(e),e.wrap().select2({placeholder:"Select Label",dropdownParent:e.parent(),templateResult:m,templateSelection:m,escapeMarkup:function(e){return e}})}),t&&new Quill(t,{modules:{toolbar:".comment-toolbar"},placeholder:"Write a Comment...",theme:"snow"});const b=()=>`
   <div class="dropdown">
       <i class="dropdown-toggle icon-base ri ri-more-2-fill cursor-pointer"
          id="board-dropdown"
@@ -98,9 +21,7 @@
           </a>
       </div>
   </div>
-`;
-  // Render item dropdown
-  const renderDropdown = () => `
+`,u=()=>`
 <div class="dropdown kanban-tasks-item-dropdown">
     <i class="dropdown-toggle icon-base ri ri-more-2-fill icon-sm"
        id="kanban-tasks-item-dropdown"
@@ -114,121 +35,21 @@
         <a class="dropdown-item delete-task" href="javascript:void(0)">Delete</a>
     </div>
 </div>
-`;
-
-  // Render header
-  const renderHeader = (color, text) => `
-<div class="d-flex justify-content-between flex-wrap align-items-center mb-2">
-    <div class="item-badges">
-        <div class="badge rounded-pill bg-label-${color}">${text}</div>
-    </div>
-    ${renderDropdown()}
-</div>
-`;
-
-  // Render avatar
-  const renderAvatar = (images = '', pullUp = false, size = '', margin = '', members = '') => {
-    const transitionClass = pullUp ? ' pull-up' : '';
-    const sizeClass = size ? `avatar-${size}` : '';
-    const memberList = members ? members.split(',') : [];
-
-    return images
-      ? images
-          .split(',')
-          .map((img, index, arr) => {
-            const marginClass = margin && index !== arr.length - 1 ? ` me-${margin}` : '';
-            const memberName = memberList[index] || '';
-            return `
-            <div class="avatar ${sizeClass}${marginClass} w-px-26 h-px-26"
+`,p=(e="",t=!1,a="",n="",r="")=>{const d=t?" pull-up":"",o=a?"avatar-"+a:"",i=r?r.split(","):[];return e?e.split(",").map((e,t,a)=>{a=n&&t!==a.length-1?" me-"+n:"",t=i[t]||"";return`
+            <div class="avatar ${o}${a} w-px-26 h-px-26"
                  data-bs-toggle="tooltip"
                  data-bs-placement="top"
-                 title="${memberName}">
-                <img src="${assetsPath}img/avatars/${img}"
+                 title="${t}">
+                <img src="${s}img/avatars/${e}"
                      alt="Avatar"
-                     class="rounded-circle${transitionClass}">
+                     class="rounded-circle${d}">
             </div>
-        `;
-          })
-          .join('')
-      : '';
-  };
-
-  // Render footer
-  const renderFooter = (attachments, comments, assigned, members) => `
-<div class="d-flex justify-content-between align-items-center flex-wrap mt-2">
-    <div class="d-flex">
-        <span class="d-flex align-items-center me-4">
-            <i class="icon-base ri ri-attachment-2 me-1"></i>
-            <span class="attachments">${attachments}</span>
-        </span>
-        <span class="d-flex align-items-center">
-            <i class="icon-base ri ri-wechat-line me-1"></i>
-            <span>${comments}</span>
-        </span>
-    </div>
-    <div class="avatar-group d-flex align-items-center assigned-avatar">
-        ${renderAvatar(assigned, true, 'xs', null, members)}
-    </div>
-</div>
-`;
-
-  // Initialize kanban
-  const kanban = new jKanban({
-    element: '.kanban-wrapper',
-    gutter: '12px',
-    widthBoard: '250px',
-    dragItems: true,
-    boards: boards,
-    dragBoards: true,
-    addItemButton: true,
-    buttonContent: '+ Add Item',
-    itemAddOptions: {
-      enabled: true,
-      content: '+ Add New Item',
-      class: 'kanban-title-button btn btn-default',
-      footer: false
-    },
-    click: el => {
-      const element = el;
-      const title = element.getAttribute('data-eid')
-        ? element.querySelector('.kanban-text').textContent
-        : element.textContent;
-      const date = element.getAttribute('data-due-date');
-      const dateObj = new Date();
-      const year = dateObj.getFullYear();
-      const dateToUse = date
-        ? `${date}, ${year}`
-        : `${dateObj.getDate()} ${dateObj.toLocaleString('en', { month: 'long' })}, ${year}`;
-      const label = element.getAttribute('data-badge-text');
-      const avatars = element.getAttribute('data-assigned');
-
-      // Show kanban offcanvas
-      kanbanOffcanvas.show();
-
-      // Populate sidebar fields
-      kanbanSidebar.querySelector('#title').value = title;
-      kanbanSidebar.querySelector('#due-date').nextSibling.value = dateToUse;
-
-      // Using jQuery for select2
-      $('.kanban-update-item-sidebar').find(select2).val(label).trigger('change');
-
-      // Remove and update assigned avatars
-      kanbanSidebar.querySelector('.assigned').innerHTML = '';
-      kanbanSidebar.querySelector('.assigned').insertAdjacentHTML(
-        'afterbegin',
-        `${renderAvatar(avatars, false, 'sm', '2', el.getAttribute('data-members'))}
+        `}).join(""):""},g=new jKanban({element:".kanban-wrapper",gutter:"12px",widthBoard:"250px",dragItems:!0,boards:c,dragBoards:!0,addItemButton:!0,buttonContent:"+ Add Item",itemAddOptions:{enabled:!0,content:"+ Add New Item",class:"kanban-title-button btn btn-default",footer:!1},click:e=>{var t=e,a=(t.getAttribute("data-eid")?t.querySelector(".kanban-text"):t).textContent,n=t.getAttribute("data-due-date"),r=new Date,d=r.getFullYear(),n=n?n+", "+d:`${r.getDate()} ${r.toLocaleString("en",{month:"long"})}, `+d,r=t.getAttribute("data-badge-text"),d=t.getAttribute("data-assigned");l.show(),o.querySelector("#title").value=a,o.querySelector("#due-date").nextSibling.value=n,$(".kanban-update-item-sidebar").find(i).val(r).trigger("change"),o.querySelector(".assigned").innerHTML="",o.querySelector(".assigned").insertAdjacentHTML("afterbegin",p(d,!1,"sm","2",e.getAttribute("data-members"))+`
         <div class="avatar avatar-sm ms-2">
             <span class="avatar-initial rounded-circle bg-label-secondary">
                 <i class="icon-base ri ri-add-line"></i>
             </span>
-        </div>`
-      );
-    },
-
-    buttonClick: (el, boardId) => {
-      const addNewForm = document.createElement('form');
-      addNewForm.setAttribute('class', 'new-item-form');
-      addNewForm.innerHTML = `
+        </div>`)},buttonClick:(e,a)=>{const n=document.createElement("form");n.setAttribute("class","new-item-form"),n.innerHTML=`
         <div class="mb-4">
             <textarea class="form-control add-new-item" rows="2" placeholder="Add Content" autofocus required></textarea>
         </div>
@@ -236,222 +57,30 @@
             <button type="submit" class="btn btn-primary btn-sm me-3">Add</button>
             <button type="button" class="btn btn-label-secondary btn-sm cancel-add-item">Cancel</button>
         </div>
-      `;
-
-      kanban.addForm(boardId, addNewForm);
-
-      addNewForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const currentBoard = Array.from(document.querySelectorAll(`.kanban-board[data-id="${boardId}"] .kanban-item`));
-        kanban.addElement(boardId, {
-          title: `<span class="kanban-text">${e.target[0].value}</span>`,
-          id: `${boardId}-${currentBoard.length + 1}`
-        });
-
-        // Add dropdown to new tasks
-        const kanbanTextElements = Array.from(
-          document.querySelectorAll(`.kanban-board[data-id="${boardId}"] .kanban-text`)
-        );
-        kanbanTextElements.forEach(textElem => {
-          textElem.insertAdjacentHTML('beforebegin', renderDropdown());
-        });
-
-        // Prevent sidebar from opening on dropdown click
-        const newTaskDropdowns = Array.from(document.querySelectorAll('.kanban-item .kanban-tasks-item-dropdown'));
-        newTaskDropdowns.forEach(dropdown => {
-          dropdown.addEventListener('click', event => event.stopPropagation());
-        });
-
-        // Add delete functionality for new tasks
-        const deleteTaskButtons = Array.from(
-          document.querySelectorAll(`.kanban-board[data-id="${boardId}"] .delete-task`)
-        );
-        deleteTaskButtons.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const taskId = btn.closest('.kanban-item').getAttribute('data-eid');
-            kanban.removeElement(taskId);
-          });
-        });
-
-        addNewForm.remove();
-      });
-
-      // Remove form on clicking cancel button
-      addNewForm.querySelector('.cancel-add-item').addEventListener('click', () => addNewForm.remove());
-    }
-  });
-
-  // Kanban Wrapper scrollbar
-  if (kanbanWrapper) {
-    new PerfectScrollbar(kanbanWrapper);
-  }
-
-  const kanbanContainer = document.querySelector('.kanban-container');
-  const kanbanTitleBoard = Array.from(document.querySelectorAll('.kanban-title-board'));
-  const kanbanItem = Array.from(document.querySelectorAll('.kanban-item'));
-
-  // Render custom items
-  if (kanbanItem.length) {
-    kanbanItem.forEach(el => {
-      const element = `<span class="kanban-text">${el.textContent}</span>`;
-      let img = '';
-
-      if (el.getAttribute('data-image')) {
-        img = `
+      `,g.addForm(a,n),n.addEventListener("submit",e=>{e.preventDefault();var t=Array.from(document.querySelectorAll(`.kanban-board[data-id="${a}"] .kanban-item`));g.addElement(a,{title:`<span class="kanban-text">${e.target[0].value}</span>`,id:a+"-"+(t.length+1)}),Array.from(document.querySelectorAll(`.kanban-board[data-id="${a}"] .kanban-text`)).forEach(e=>{e.insertAdjacentHTML("beforebegin",u())}),Array.from(document.querySelectorAll(".kanban-item .kanban-tasks-item-dropdown")).forEach(e=>{e.addEventListener("click",e=>e.stopPropagation())}),Array.from(document.querySelectorAll(`.kanban-board[data-id="${a}"] .delete-task`)).forEach(t=>{t.addEventListener("click",()=>{var e=t.closest(".kanban-item").getAttribute("data-eid");g.removeElement(e)})}),n.remove()}),n.querySelector(".cancel-add-item").addEventListener("click",()=>n.remove())}}),v=(e&&new PerfectScrollbar(e),document.querySelector(".kanban-container"));var c=Array.from(document.querySelectorAll(".kanban-title-board")),f=Array.from(document.querySelectorAll(".kanban-item"));f.length&&f.forEach(e=>{var t,a,n=`<span class="kanban-text">${e.textContent}</span>`;let r="";e.getAttribute("data-image")&&(r=`
               <img class="img-fluid rounded-4 mb-2"
-                   src="${assetsPath}img/elements/${el.getAttribute('data-image')}">
-          `;
-      }
-
-      el.textContent = '';
-
-      if (el.getAttribute('data-badge') && el.getAttribute('data-badge-text')) {
-        el.insertAdjacentHTML(
-          'afterbegin',
-          `${renderHeader(el.getAttribute('data-badge'), el.getAttribute('data-badge-text'))}${img}${element}`
-        );
-      }
-
-      if (el.getAttribute('data-comments') || el.getAttribute('data-due-date') || el.getAttribute('data-assigned')) {
-        el.insertAdjacentHTML(
-          'beforeend',
-          renderFooter(
-            el.getAttribute('data-attachments') || 0,
-            el.getAttribute('data-comments') || 0,
-            el.getAttribute('data-assigned') || '',
-            el.getAttribute('data-members') || ''
-          )
-        );
-      }
-    });
-  }
-
-  // Initialize tooltips for rendered items
-  const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  tooltipTriggerList.forEach(tooltipTriggerEl => {
-    new bootstrap.Tooltip(tooltipTriggerEl);
-  });
-
-  // Prevent sidebar from opening on dropdown button click
-  const tasksItemDropdown = Array.from(document.querySelectorAll('.kanban-tasks-item-dropdown'));
-  if (tasksItemDropdown.length) {
-    tasksItemDropdown.forEach(dropdown => {
-      dropdown.addEventListener('click', event => {
-        event.stopPropagation();
-      });
-    });
-  }
-
-  // Toggle "add new" input and actions for add-new-btn
-  if (kanbanAddBoardBtn) {
-    kanbanAddBoardBtn.addEventListener('click', () => {
-      kanbanAddNewInput.forEach(el => {
-        el.value = ''; // Clear input value
-        el.classList.toggle('d-none'); // Toggle visibility
-      });
-    });
-  }
-
-  // Render "add new" inline with boards
-  if (kanbanContainer) {
-    kanbanContainer.append(kanbanAddNewBoard);
-  }
-
-  // Makes kanban title editable for rendered boards
-  if (kanbanTitleBoard) {
-    kanbanTitleBoard.forEach(elem => {
-      elem.addEventListener('mouseenter', () => {
-        elem.contentEditable = 'true';
-      });
-
-      // Appends delete icon with title
-      elem.insertAdjacentHTML('afterend', renderBoardDropdown());
-    });
-  }
-
-  // Delete Board for rendered boards
-  const deleteBoards = Array.from(document.querySelectorAll('.delete-board'));
-  deleteBoards.forEach(elem => {
-    elem.addEventListener('click', () => {
-      const id = elem.closest('.kanban-board').getAttribute('data-id');
-      kanban.removeBoard(id);
-    });
-  });
-
-  // Delete task for rendered boards
-  const deleteTasks = Array.from(document.querySelectorAll('.delete-task'));
-  deleteTasks.forEach(task => {
-    task.addEventListener('click', () => {
-      const id = task.closest('.kanban-item').getAttribute('data-eid');
-      kanban.removeElement(id);
-    });
-  });
-
-  // Cancel "Add New Board" input
-  const cancelAddNew = document.querySelector('.kanban-add-board-cancel-btn');
-  if (cancelAddNew) {
-    cancelAddNew.addEventListener('click', () => {
-      kanbanAddNewInput.forEach(el => {
-        el.classList.toggle('d-none');
-      });
-    });
-  }
-
-  // Add new board
-  if (kanbanAddNewBoard) {
-    kanbanAddNewBoard.addEventListener('submit', e => {
-      e.preventDefault();
-      const value = e.target.querySelector('.form-control').value.trim();
-      const id = value.replace(/\s+/g, '-').toLowerCase();
-
-      kanban.addBoards([{ id, title: value }]);
-
-      // Add delete board option to new board and make title editable
-      const newBoard = document.querySelector('.kanban-board:last-child');
-      if (newBoard) {
-        const header = newBoard.querySelector('.kanban-title-board');
-        header.insertAdjacentHTML('afterend', renderBoardDropdown());
-
-        // Make title editable
-        header.addEventListener('mouseenter', () => {
-          header.contentEditable = 'true';
-        });
-
-        // Add delete functionality to new board
-        const deleteNewBoard = newBoard.querySelector('.delete-board');
-        if (deleteNewBoard) {
-          deleteNewBoard.addEventListener('click', () => {
-            const id = deleteNewBoard.closest('.kanban-board').getAttribute('data-id');
-            kanban.removeBoard(id);
-          });
-        }
-      }
-
-      // Hide input fields
-      kanbanAddNewInput.forEach(el => {
-        el.classList.add('d-none');
-      });
-
-      // Re-append the "Add New Board" form
-      if (kanbanContainer) {
-        kanbanContainer.append(kanbanAddNewBoard);
-      }
-    });
-  }
-
-  // Clear comment editor on Kanban sidebar close
-  kanbanSidebar.addEventListener('hidden.bs.offcanvas', () => {
-    const editor = kanbanSidebar.querySelector('.ql-editor').firstElementChild;
-    if (editor) editor.innerHTML = '';
-  });
-
-  // Re-init tooltip when offcanvas opens(Bootstrap bug)
-  if (kanbanSidebar) {
-    kanbanSidebar.addEventListener('shown.bs.offcanvas', () => {
-      const tooltipTriggerList = Array.from(kanbanSidebar.querySelectorAll('[data-bs-toggle="tooltip"]'));
-      tooltipTriggerList.forEach(tooltipTriggerEl => {
-        new bootstrap.Tooltip(tooltipTriggerEl);
-      });
-    });
-  }
-})();
+                   src="${s}img/elements/${e.getAttribute("data-image")}">
+          `),e.textContent="",e.getAttribute("data-badge")&&e.getAttribute("data-badge-text")&&e.insertAdjacentHTML("afterbegin",(t=e.getAttribute("data-badge"),a=e.getAttribute("data-badge-text"),`
+<div class="d-flex justify-content-between flex-wrap align-items-center mb-2">
+    <div class="item-badges">
+        <div class="badge rounded-pill bg-label-${t}">${a}</div>
+    </div>
+    ${u()}
+</div>
+`+r+n)),(e.getAttribute("data-comments")||e.getAttribute("data-due-date")||e.getAttribute("data-assigned"))&&e.insertAdjacentHTML("beforeend",(t=e.getAttribute("data-attachments")||0,a=e.getAttribute("data-comments")||0,n=e.getAttribute("data-assigned")||"",e=e.getAttribute("data-members")||"",`
+<div class="d-flex justify-content-between align-items-center flex-wrap mt-2">
+    <div class="d-flex">
+        <span class="d-flex align-items-center me-4">
+            <i class="icon-base ri ri-attachment-2 me-1"></i>
+            <span class="attachments">${t}</span>
+        </span>
+        <span class="d-flex align-items-center">
+            <i class="icon-base ri ri-wechat-line me-1"></i>
+            <span>${a}</span>
+        </span>
+    </div>
+    <div class="avatar-group d-flex align-items-center assigned-avatar">
+        ${p(n,!0,"xs",null,e)}
+    </div>
+</div>
+`))});Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]')).forEach(e=>{new bootstrap.Tooltip(e)});f=Array.from(document.querySelectorAll(".kanban-tasks-item-dropdown"));f.length&&f.forEach(e=>{e.addEventListener("click",e=>{e.stopPropagation()})}),a&&a.addEventListener("click",()=>{d.forEach(e=>{e.value="",e.classList.toggle("d-none")})}),v&&v.append(r),c&&c.forEach(e=>{e.addEventListener("mouseenter",()=>{e.contentEditable="true"}),e.insertAdjacentHTML("afterend",b())}),Array.from(document.querySelectorAll(".delete-board")).forEach(t=>{t.addEventListener("click",()=>{var e=t.closest(".kanban-board").getAttribute("data-id");g.removeBoard(e)})});Array.from(document.querySelectorAll(".delete-task")).forEach(t=>{t.addEventListener("click",()=>{var e=t.closest(".kanban-item").getAttribute("data-eid");g.removeElement(e)})});f=document.querySelector(".kanban-add-board-cancel-btn");f&&f.addEventListener("click",()=>{d.forEach(e=>{e.classList.toggle("d-none")})}),r&&r.addEventListener("submit",e=>{e.preventDefault();var e=e.target.querySelector(".form-control").value.trim(),t=e.replace(/\s+/g,"-").toLowerCase(),t=(g.addBoards([{id:t,title:e}]),document.querySelector(".kanban-board:last-child"));if(t){const a=t.querySelector(".kanban-title-board"),n=(a.insertAdjacentHTML("afterend",b()),a.addEventListener("mouseenter",()=>{a.contentEditable="true"}),t.querySelector(".delete-board"));n&&n.addEventListener("click",()=>{var e=n.closest(".kanban-board").getAttribute("data-id");g.removeBoard(e)})}d.forEach(e=>{e.classList.add("d-none")}),v&&v.append(r)}),o.addEventListener("hidden.bs.offcanvas",()=>{var e=o.querySelector(".ql-editor").firstElementChild;e&&(e.innerHTML="")}),o&&o.addEventListener("shown.bs.offcanvas",()=>{Array.from(o.querySelectorAll('[data-bs-toggle="tooltip"]')).forEach(e=>{new bootstrap.Tooltip(e)})})}();
