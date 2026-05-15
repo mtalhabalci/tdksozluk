@@ -54,6 +54,15 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// Nginx reverse proxy arkasında çalışırken X-Forwarded-* header'larını kullan
+app.UseForwardedHeaders(new Microsoft.AspNetCore.Builder.ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+                     | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto,
+    KnownNetworks = { },
+    KnownProxies = { }
+});
+
 // Auto-migrate & seed on startup
 using (var scope = app.Services.CreateScope())
 {
@@ -71,7 +80,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// HTTPS redirect Nginx tarafında yapılıyor (reverse proxy)
 app.UseStaticFiles();
 
 app.UseRouting();
