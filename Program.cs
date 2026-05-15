@@ -7,30 +7,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-// Database: PostgreSQL (prod) veya SQLite (dev, Docker yoksa)
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
-if (builder.Environment.IsDevelopment() && connectionString.Contains("Host="))
-{
-    // PostgreSQL'e bağlanabilir miyiz kontrol et
-    try
-    {
-        using var testConn = new Npgsql.NpgsqlConnection(connectionString);
-        testConn.Open();
-        testConn.Close();
-        builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
-    }
-    catch
-    {
-        // PostgreSQL yoksa SQLite'a düş
-        var sqlitePath = Path.Combine(builder.Environment.ContentRootPath, "tdksozluk.db");
-        builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={sqlitePath}"));
-        Console.WriteLine($"⚠ PostgreSQL bağlantısı kurulamadı, SQLite kullanılıyor: {sqlitePath}");
-    }
-}
-else
-{
-    builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
-}
+// Database: SQLite
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? $"Data Source={Path.Combine(builder.Environment.ContentRootPath, "data", "tdksozluk.db")}";
+
+// SQLite dosyasının klasörü yoksa oluştur
+var sqliteBuilder = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(connectionString);
+var dbDir = Path.GetDirectoryName(sqliteBuilder.DataSource);
+if (!string.IsNullOrEmpty(dbDir)) Directory.CreateDirectory(dbDir);
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
 // ASP.NET Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
@@ -73,10 +59,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<AppDbContext>();
-    if (db.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
-        db.Database.EnsureCreated();
-    else
-        db.Database.Migrate();
+    db.Database.EnsureCreated();
     await DbSeeder.SeedAsync(services);
 }
 
