@@ -9,10 +9,10 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Data Source=/AspnetCoreMvcStarter/data/tdksozluk.db
+      - ConnectionStrings__DefaultConnection=Data Source=/AspnetCoreMvcStarter/sqlite-data/tdksozluk.db
       - AdminSeedPassword=${ADMIN_PASSWORD}
     volumes:
-      - ./data:/AspnetCoreMvcStarter/data
+      - ./sqlite-data:/AspnetCoreMvcStarter/sqlite-data
       - ./backups:/AspnetCoreMvcStarter/Backups
       - ./wwwroot/uploads:/AspnetCoreMvcStarter/wwwroot/uploads
     restart: always

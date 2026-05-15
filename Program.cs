@@ -9,7 +9,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 // Database: SQLite
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? $"Data Source={Path.Combine(builder.Environment.ContentRootPath, "data", "tdksozluk.db")}";
+    ?? $"Data Source={Path.Combine(builder.Environment.ContentRootPath, "sqlite-data", "tdksozluk.db")}";
 
 // SQLite dosyasının klasörü yoksa oluştur
 var sqliteBuilder = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(connectionString);

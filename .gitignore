@@ -55,9 +55,9 @@ Backups/
 *.xlsx
 *.xls
 
-# Docker veri klasörleri
-db-data/
-data/
+# Docker veri klasörleri (SQLite runtime + yedekler)
+sqlite-data/
+backups/
 
 # content below from: https://github.com/github/gitignore/blob/main/Global/Windows.gitignore
 # Windows thumbnail cache files
