@@ -1,0 +1,28 @@
+@model AspnetCoreMvcStarter.Models.Bicim
+@{
+    ViewData["title"] = "Biçem Düzenle";
+}
+
+<div class="row">
+    <div class="col-xl-6 col-lg-8 col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Biçem Düzenle</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="BicimDuzenle" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="mb-4">
+                        <label asp-for="Ad" class="form-label">Biçem Adı</label>
+                        <input asp-for="Ad" class="form-control" autofocus />
+                        <span asp-validation-for="Ad" class="text-danger"></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Güncelle</button>
+                        <a asp-action="Bicimler" class="btn btn-outline-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

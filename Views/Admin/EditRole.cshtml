@@ -1,0 +1,55 @@
+@model AspnetCoreMvcStarter.Models.ViewModels.EditUserRoleViewModel
+@{
+    ViewData["title"] = "Rol Düzenle";
+}
+
+<div class="row">
+    <div class="col-xl-6 col-lg-8 col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Kullanıcı Rolü Düzenle</h5>
+            </div>
+            <div class="card-body">
+
+                <div class="mb-4">
+                    <label class="form-label text-muted">Kullanıcı</label>
+                    <p class="fw-medium mb-0">@Model.FullName (@Model.Email)</p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-muted">Mevcut Rol</label>
+                    <p class="fw-medium mb-0">
+                        @{
+                            var badgeClass = Model.CurrentRole switch
+                            {
+                                "Admin" => "bg-label-danger",
+                                "Editor" => "bg-label-primary",
+                                _ => "bg-label-secondary"
+                            };
+                        }
+                        <span class="badge @badgeClass">@Model.CurrentRole</span>
+                    </p>
+                </div>
+
+                <form asp-action="EditRole" asp-controller="Admin" method="post">
+                    <input type="hidden" asp-for="UserId" />
+
+                    <div class="mb-4">
+                        <label asp-for="NewRole" class="form-label">Yeni Rol</label>
+                        <select asp-for="NewRole" class="form-select">
+                            @foreach (var role in Model.AvailableRoles)
+                            {
+                                <option value="@role" selected="@(role == Model.CurrentRole)">@role</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Rolü Güncelle</button>
+                        <a asp-action="Users" asp-controller="Admin" class="btn btn-outline-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

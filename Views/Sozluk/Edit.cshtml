@@ -1,0 +1,83 @@
+@model MaddeBasiCreateViewModel
+@{
+    ViewData["title"] = "Madde Düzenle";
+    var maddeId = (int)ViewBag.MaddeId;
+}
+
+<div class="d-flex align-items-center mb-6">
+    <a asp-action="Detail" asp-route-id="@maddeId" class="btn btn-outline-secondary me-3">
+        <i class="ri-arrow-left-line"></i>
+    </a>
+    <div>
+        <h4 class="mb-1">Madde Başı Düzenle</h4>
+        <p class="text-muted mb-0">Kelime ve konu bilgisini güncelleyin</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Edit" asp-route-id="@maddeId" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="Kelime" class="form-label"></label>
+                        <input asp-for="Kelime" class="form-control" autofocus />
+                        <span asp-validation-for="Kelime" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="TemaId" class="form-label"></label>
+                        <select asp-for="TemaId" asp-items="Model.Temalar" class="form-select" id="editTema">
+                            <option value="">-- Tema Seçin --</option>
+                        </select>
+                        <span asp-validation-for="TemaId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="KonuId" class="form-label"></label>
+                        <select asp-for="KonuId" class="form-select" id="editKonu">
+                            <option value="">-- Konu Seçin --</option>
+                            @if (Model.Konular != null)
+                            {
+                                @foreach (var item in Model.Konular)
+                                {
+                                    <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="KonuId" class="text-danger"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-save-line me-1"></i> Güncelle
+                    </button>
+                    <a asp-action="Detail" asp-route-id="@maddeId" class="btn btn-outline-secondary ms-2">İptal</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script>
+        document.getElementById('editTema').addEventListener('change', function () {
+            var temaId = this.value;
+            var konuSelect = document.getElementById('editKonu');
+            konuSelect.innerHTML = '<option value="">-- Konu Seçin --</option>';
+            if (temaId) {
+                fetch('@Url.Action("GetKonular", "Sozluk")?temaId=' + temaId)
+                    .then(r => r.json())
+                    .then(data => {
+                        data.forEach(function (k) {
+                            var opt = document.createElement('option');
+                            opt.value = k.id;
+                            opt.textContent = k.ad;
+                            konuSelect.appendChild(opt);
+                        });
+                    });
+            }
+        });
+    </script>
+}

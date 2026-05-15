@@ -1,0 +1,153 @@
+@model MaddeBasiListViewModel
+@{
+    ViewData["title"] = "Madde Başları";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <div>
+        <h4 class="mb-1">Madde Başları</h4>
+        <p class="text-muted mb-0">Sözlük veri tabanındaki kelimeleri görüntüleyin</p>
+    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="ri-add-line me-1"></i> Yeni Madde Ekle
+        </a>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible mb-4" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Filtreleme -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" asp-action="Index" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Tema</label>
+                <select asp-for="TemaId" asp-items="Model.Temalar" class="form-select" id="filterTema">
+                    <option value="">Tümü</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Konu</label>
+                <select asp-for="KonuId" class="form-select" id="filterKonu">
+                    <option value="">Tümü</option>
+                    @if (Model.Konular != null)
+                    {
+                        @foreach (var item in Model.Konular)
+                        {
+                            <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Arama</label>
+                <input asp-for="Arama" class="form-control" placeholder="Kelime ara..." />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="ri-search-line me-1"></i> Filtrele
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Kelime</th>
+                    <th>Tema</th>
+                    <th>Konu</th>
+                    <th class="text-center">Anlam</th>
+                    <th>Ekleyen</th>
+                    <th>Güncelleme</th>
+                    <th class="text-center" style="width: 100px">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.MaddeBaslari.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">
+                            <i class="ri-book-2-line ri-3x mb-2 d-block"></i>
+                            Henüz madde başı eklenmemiş.
+                        </td>
+                    </tr>
+                }
+                @foreach (var m in Model.MaddeBaslari)
+                {
+                    <tr>
+                        <td>
+                            <a asp-action="Detail" asp-route-id="@m.Id" class="fw-semibold text-primary">
+                                @m.Kelime
+                            </a>
+                        </td>
+                        <td><span class="badge bg-label-info">@m.TemaAd</span></td>
+                        <td>@m.KonuAd</td>
+                        <td class="text-center">
+                            <span class="badge bg-label-primary rounded-pill">@m.AnlamSayisi</span>
+                        </td>
+                        <td class="text-muted">@m.OlusturanAd</td>
+                        <td class="text-muted">@m.GuncellemeTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td class="text-center">
+                            <a asp-action="Detail" asp-route-id="@m.Id" class="btn btn-sm btn-outline-primary"
+                                   title="Detay">
+                                <i class="ri-eye-line"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.ToplamSayfa > 1)
+    {
+        <div class="card-footer d-flex justify-content-center">
+            <nav>
+                <ul class="pagination mb-0">
+                    @for (var i = 1; i <= Model.ToplamSayfa; i++)
+                    {
+                        <li class="page-item @(i == Model.MevcutSayfa ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-temaId="@Model.TemaId"
+                               asp-route-konuId="@Model.KonuId" asp-route-arama="@Model.Arama" asp-route-sayfa="@i">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+@section PageScripts {
+    <script>
+        document.getElementById('filterTema').addEventListener('change', function () {
+            var temaId = this.value;
+            var konuSelect = document.getElementById('filterKonu');
+            konuSelect.innerHTML = '<option value="">Tümü</option>';
+            if (temaId) {
+                fetch('@Url.Action("GetKonular", "Sozluk")?temaId=' + temaId)
+                    .then(r => r.json())
+                    .then(data => {
+                        data.forEach(function (k) {
+                            var opt = document.createElement('option');
+                            opt.value = k.id;
+                            opt.textContent = k.ad;
+                            konuSelect.appendChild(opt);
+                        });
+                    });
+            }
+        });
+    </script>
+}

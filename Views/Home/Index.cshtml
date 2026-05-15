@@ -1,0 +1,178 @@
+@{
+  ViewData["Title"] = "Ana Sayfa";
+  var maddeSayisi = (int)ViewBag.MaddeSayisi;
+  var anlamSayisi = (int)ViewBag.AnlamSayisi;
+  var temaSayisi = (int)ViewBag.TemaSayisi;
+  var konuSayisi = (int)ViewBag.KonuSayisi;
+  var medyaSayisi = (int)ViewBag.MedyaSayisi;
+  var kullaniciSayisi = (int)ViewBag.KullaniciSayisi;
+  var sonEklenenler = (List<AspnetCoreMvcStarter.Models.MaddeBasi>)ViewBag.SonEklenenler;
+}
+
+<div class="mb-6">
+  <h4 class="mb-1">Hoş geldiniz, @User.Identity?.Name</h4>
+  <p class="text-muted mb-0">TDK Sözlük Veri Giriş Paneli</p>
+</div>
+
+<!-- İstatistikler -->
+<div class="row mb-6">
+  <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <div class="avatar me-3">
+            <span class="avatar-initial rounded bg-label-primary"><i class="ri-book-2-line ri-24px"></i></span>
+          </div>
+          <div>
+            <h4 class="mb-0">@maddeSayisi</h4>
+            <span class="text-muted">Madde Başı</span>
+          </div>
+        </div>
+        <a asp-controller="Sozluk" asp-action="Index" class="small text-primary">Tümünü gör →</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <div class="avatar me-3">
+            <span class="avatar-initial rounded bg-label-success"><i class="ri-file-text-line ri-24px"></i></span>
+          </div>
+          <div>
+            <h4 class="mb-0">@anlamSayisi</h4>
+            <span class="text-muted">Anlam</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <div class="avatar me-3">
+            <span class="avatar-initial rounded bg-label-info"><i class="ri-folder-line ri-24px"></i></span>
+          </div>
+          <div>
+            <h4 class="mb-0">@temaSayisi / @konuSayisi</h4>
+            <span class="text-muted">Tema / Konu</span>
+          </div>
+        </div>
+        <a asp-controller="Sozluk" asp-action="Browse" class="small text-info">Gözat →</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <div class="avatar me-3">
+            <span class="avatar-initial rounded bg-label-warning"><i class="ri-image-line ri-24px"></i></span>
+          </div>
+          <div>
+            <h4 class="mb-0">@medyaSayisi</h4>
+            <span class="text-muted">Medya Dosyası</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hızlı Erişim + Son Eklenenler -->
+<div class="row">
+  <!-- Hızlı Erişim -->
+  <div class="col-lg-4 mb-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Hızlı Erişim</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-3">
+          @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+          {
+            <a asp-controller="Sozluk" asp-action="Create" class="btn btn-primary">
+              <i class="ri-add-line me-2"></i> Yeni Madde Ekle
+            </a>
+          }
+          <a asp-controller="Sozluk" asp-action="Index" class="btn btn-outline-primary">
+            <i class="ri-list-check me-2"></i> Madde Başları
+          </a>
+          <a asp-controller="Sozluk" asp-action="Browse" class="btn btn-outline-info">
+            <i class="ri-folder-line me-2"></i> Tema/Konu Gözat
+          </a>
+          @if (User.IsInRole("Admin"))
+          {
+            <a asp-controller="Export" asp-action="Index" class="btn btn-outline-success">
+              <i class="ri-download-line me-2"></i> Dışa Aktar
+            </a>
+            <a asp-controller="Admin" asp-action="Users" class="btn btn-outline-secondary">
+              <i class="ri-group-line me-2"></i> Kullanıcı Yönetimi (@kullaniciSayisi kişi)
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Son Eklenen / Güncellenen Maddeler -->
+  <div class="col-lg-8 mb-4">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Son Güncellenen Maddeler</h5>
+        <a asp-controller="Sozluk" asp-action="Index" class="btn btn-sm btn-outline-primary">Tümü</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Kelime</th>
+              <th>Tema / Konu</th>
+              <th class="text-center">Anlam</th>
+              <th>Ekleyen</th>
+              <th>Tarih</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (!sonEklenenler.Any())
+            {
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">
+                  <i class="ri-book-2-line ri-2x mb-2 d-block"></i>
+                  Henüz madde eklenmemiş.
+                  @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                  {
+                    <br />
+                    <a asp-controller="Sozluk" asp-action="Create" class="btn btn-sm btn-primary mt-2">
+                      İlk maddeyi ekle
+                    </a>
+                  }
+                </td>
+              </tr>
+            }
+            @foreach (var m in sonEklenenler)
+            {
+              <tr>
+                <td>
+                  <a asp-controller="Sozluk" asp-action="Detail" asp-route-id="@m.Id" class="fw-semibold text-primary">
+                    @m.Kelime
+                  </a>
+                </td>
+                <td>
+                  <span class="badge bg-label-info">@m.Konu.Tema.Ad</span>
+                  <small class="text-muted ms-1">@m.Konu.Ad</small>
+                </td>
+                <td class="text-center">
+                  <span class="badge bg-label-primary rounded-pill">@m.Anlamlar.Count</span>
+                </td>
+                <td class="text-muted small">@m.Olusturan.FullName</td>
+                <td class="text-muted small">@m.GuncellemeTarihi.ToString("dd.MM.yyyy HH:mm")</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

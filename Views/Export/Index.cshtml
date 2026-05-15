@@ -1,0 +1,104 @@
+@model AspnetCoreMvcStarter.Controllers.ExportStatsViewModel
+@{
+    ViewData["title"] = "Dışa Aktar";
+}
+
+<div class="mb-6">
+    <h4 class="mb-1">Dışa Aktar</h4>
+    <p class="text-muted mb-0">Sözlük veritabanını JSON veya SQL formatında indirin</p>
+</div>
+
+<!-- İstatistikler -->
+<div class="row mb-4">
+    <div class="col-md-2 col-sm-4 col-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body py-3">
+                <h3 class="mb-1 text-primary">@Model.TemaSayisi</h3>
+                <small class="text-muted">Tema</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body py-3">
+                <h3 class="mb-1 text-info">@Model.KonuSayisi</h3>
+                <small class="text-muted">Konu</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body py-3">
+                <h3 class="mb-1 text-success">@Model.MaddeSayisi</h3>
+                <small class="text-muted">Madde Başı</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body py-3">
+                <h3 class="mb-1 text-warning">@Model.AnlamSayisi</h3>
+                <small class="text-muted">Anlam</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body py-3">
+                <h3 class="mb-1 text-secondary">@Model.OrnekCumleSayisi</h3>
+                <small class="text-muted">Örnek Cümle</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2 col-sm-4 col-6 mb-3">
+        <div class="card text-center">
+            <div class="card-body py-3">
+                <h3 class="mb-1 text-danger">@Model.MedyaSayisi</h3>
+                <small class="text-muted">Medya</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- JSON Export -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center py-5">
+                <i class="ri-braces-line ri-4x text-primary mb-3 d-block"></i>
+                <h5>JSON Export</h5>
+                <p class="text-muted mb-4">Tüm sözlük verisini yapılandırılmış JSON formatında indirin. Programatik
+                    erişim ve veri aktarımı için idealdir.</p>
+                    <form asp-action="Json" method="post">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="ri-download-line me-1"></i> JSON İndir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- SQL Export -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center py-5">
+                    <i class="ri-database-2-line ri-4x text-success mb-3 d-block"></i>
+                    <h5>SQL Export</h5>
+                    <p class="text-muted mb-4">PostgreSQL INSERT ifadeleri olarak indirin. Başka bir veritabanına doğrudan
+                        aktarmak için kullanılabilir.</p>
+                        <form asp-action="Sql" method="post">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="ri-download-line me-1"></i> SQL İndir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <i class="ri-information-line me-1"></i>
+            <strong>Not:</strong> Export işlemi tüm veritabanını kapsar. Medya dosyaları (görseller, sesler) export'a dahil
+            değildir — yalnızca dosya yolları JSON/SQL'de yer alır. Medya dosyalarını ayrıca <code>wwwroot/uploads/</code>
+            klasöründen kopyalayabilirsiniz.
+        </div>

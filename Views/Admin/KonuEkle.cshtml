@@ -1,0 +1,35 @@
+@model AspnetCoreMvcStarter.Models.Konu
+@{
+    ViewData["title"] = "Yeni Konu Ekle";
+}
+
+<div class="row">
+    <div class="col-xl-6 col-lg-8 col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Yeni Konu Ekle</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="KonuEkle" method="post">
+                    <div class="mb-4">
+                        <label asp-for="TemaId" class="form-label">Tema</label>
+                        <select asp-for="TemaId" asp-items="(SelectList)ViewBag.Temalar" class="form-select">
+                            <option value="">Tema seçiniz...</option>
+                        </select>
+                        <span asp-validation-for="TemaId" class="text-danger"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label asp-for="Ad" class="form-label">Konu Adı</label>
+                        <input asp-for="Ad" class="form-control" placeholder="Örn: Aile Bireyleri ve Akrabalar"
+                               autofocus />
+                        <span asp-validation-for="Ad" class="text-danger"></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Ekle</button>
+                        <a asp-action="Konular" class="btn btn-outline-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

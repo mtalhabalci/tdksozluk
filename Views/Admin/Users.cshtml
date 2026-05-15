@@ -1,0 +1,88 @@
+@model List<AspnetCoreMvcStarter.Models.ViewModels.UserListViewModel>
+@{
+    ViewData["title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <div>
+        <h4 class="mb-1">Kullanıcı Yönetimi</h4>
+        <p class="text-muted mb-0">Sistemdeki tüm kullanıcıları yönetin</p>
+    </div>
+    <a asp-action="Register" asp-controller="Account" class="btn btn-primary">
+        <i class="ri-user-add-line me-1"></i> Yeni Kullanıcı
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible mb-4" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible mb-4" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>E-posta</th>
+                    <th>Rol</th>
+                    <th>Kayıt Tarihi</th>
+                    <th class="text-center">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar avatar-sm me-3">
+                                    <span class="avatar-initial rounded-circle bg-label-primary">
+                                        @user.FullName[0]
+                                    </span>
+                                </div>
+                                <span class="fw-medium">@user.FullName</span>
+                            </div>
+                        </td>
+                        <td>@user.Email</td>
+                        <td>
+                            @{
+                                var badgeClass = user.Role switch
+                                {
+                                    "Admin" => "bg-label-danger",
+                                    "Editor" => "bg-label-primary",
+                                    _ => "bg-label-secondary"
+                                };
+                            }
+                            <span class="badge @badgeClass">@user.Role</span>
+                        </td>
+                        <td>@user.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td class="text-center">
+                            <a asp-action="EditRole" asp-controller="Admin" asp-route-id="@user.Id"
+                               class="btn btn-sm btn-outline-primary me-1" title="Rol Düzenle">
+                                <i class="ri-edit-line"></i>
+                            </a>
+                            <form asp-action="DeleteUser" asp-controller="Admin" asp-route-id="@user.Id"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Sil">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

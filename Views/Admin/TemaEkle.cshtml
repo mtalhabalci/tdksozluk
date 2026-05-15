@@ -1,0 +1,27 @@
+@model AspnetCoreMvcStarter.Models.Tema
+@{
+    ViewData["title"] = "Yeni Tema Ekle";
+}
+
+<div class="row">
+    <div class="col-xl-6 col-lg-8 col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Yeni Tema Ekle</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="TemaEkle" method="post">
+                    <div class="mb-4">
+                        <label asp-for="Ad" class="form-label">Tema Adı</label>
+                        <input asp-for="Ad" class="form-control" placeholder="Örn: Ben ve Yakın Çevrem" autofocus />
+                        <span asp-validation-for="Ad" class="text-danger"></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Ekle</button>
+                        <a asp-action="Temalar" class="btn btn-outline-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

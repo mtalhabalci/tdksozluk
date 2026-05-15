@@ -1,0 +1,76 @@
+@model AspnetCoreMvcStarter.Models.ViewModels.LoginViewModel
+@{
+    ViewData["title"] = "Giriş Yap";
+    Layout = "_BlankLayout";
+}
+
+@section PageStyles {
+    <link rel="stylesheet" href="~/vendor/css/pages/page-auth.css" />
+}
+
+<div class="authentication-wrapper authentication-cover">
+    <div class="authentication-inner row m-0">
+
+        <!-- Left side: illustration -->
+        <div class="d-none d-lg-flex col-lg-7 col-xl-8 align-items-center justify-content-center p-12 pb-2">
+            <div>
+                <div class="app-brand mb-4">
+                    <span class="app-brand-text demo menu-text fw-bold ms-2 ps-1" style="font-size: 2rem; text-transform: none;">
+                        TDK Sözlük
+                    </span>
+                </div>
+                <img src="~/img/branding/sitting-girl-with-laptop.png"
+                     alt="auth-cover"
+                     class="img-fluid my-5 authentication-image d-none d-lg-block"
+                     width="600" />
+            </div>
+        </div>
+
+        <!-- Right side: login form -->
+        <div class="d-flex col-12 col-lg-5 col-xl-4 align-items-center authentication-bg p-sm-12 p-6">
+            <div class="w-px-400 mx-auto mt-sm-12 mt-8">
+
+                <h4 class="mb-1">TDK Sözlük Veri Giriş Paneli 👋</h4>
+                <p class="mb-6">Lütfen hesabınızla giriş yapın</p>
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible mb-4" role="alert">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <div>@error.ErrorMessage</div>
+                        }
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+                    </div>
+                }
+
+                <form asp-action="Login" asp-controller="Account" method="post">
+                    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+                    <div class="mb-5">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="admin@tdksozluk.com" autofocus />
+                    </div>
+
+                    <div class="mb-5 form-password-toggle">
+                        <label asp-for="Password" class="form-label"></label>
+                        <div class="input-group input-group-merge">
+                            <input asp-for="Password" class="form-control" placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" />
+                            <span class="input-group-text cursor-pointer"><i class="ri-eye-off-line"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-5 d-flex justify-content-between align-items-center">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label"></label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary d-grid w-100">Giriş Yap</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

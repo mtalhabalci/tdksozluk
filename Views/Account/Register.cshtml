@@ -1,0 +1,95 @@
+@model AspnetCoreMvcStarter.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["title"] = "Yeni Kullanıcı Oluştur";
+    Layout = "_ContentNavbarLayout";
+}
+
+<div class="row">
+    <div class="col-xl-6 col-lg-8 col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Yeni Kullanıcı Oluştur</h5>
+                <p class="text-muted mb-0">Kullanıcı varsayılan olarak Editör rolüyle oluşturulur.</p>
+            </div>
+            <div class="card-body">
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible mb-4" role="alert">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <div>@error.ErrorMessage</div>
+                        }
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+                    </div>
+                }
+
+                <form asp-action="Register" asp-controller="Account" method="post">
+
+                    <div class="mb-4">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Ahmet Yılmaz" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" placeholder="ahmet@example.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label"></label>
+                        <div class="input-group input-group-merge">
+                            <input asp-for="Password" class="form-control" placeholder="En az 6 karakter" />
+                            <span class="input-group-text cursor-pointer js-pw-toggle" role="button" tabindex="0">
+                                <i class="ri-eye-off-line"></i>
+                            </span>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ConfirmPassword" class="form-label"></label>
+                        <div class="input-group input-group-merge">
+                            <input asp-for="ConfirmPassword" class="form-control"
+                                   placeholder="Şifreyi tekrar giriniz" />
+                            <span class="input-group-text cursor-pointer js-pw-toggle" role="button" tabindex="0">
+                                <i class="ri-eye-off-line"></i>
+                            </span>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Kullanıcı Oluştur</button>
+                        <a asp-action="Users" asp-controller="Admin" class="btn btn-outline-secondary">İptal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts {
+    <script>
+        (function () {
+            document.querySelectorAll('.js-pw-toggle').forEach(function (toggle) {
+                debugger;
+                toggle.addEventListener('click', function () {
+                    var group = toggle.closest('.input-group');
+                    if (!group) return;
+                    var input = group.querySelector('input');
+                    var icon = toggle.querySelector('i');
+                    if (!input) return;
+                    var isHidden = input.type === 'password';
+                    input.type = isHidden ? 'text' : 'password';
+                    if (icon) {
+                        icon.classList.toggle('ri-eye-line', isHidden);
+                        icon.classList.toggle('ri-eye-off-line', !isHidden);
+                    }
+                });
+            });
+        })();
+    </script>
+}

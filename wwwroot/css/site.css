@@ -1,0 +1,26 @@
+/* Custom styles goes here */
+
+/*
+ * Remix Icons (Iconify) fallback.
+ * The vendor stylesheet (vendor/fonts/iconify-icons.css) only sets the
+ * --svg variable on .ri-<name> classes; the actual masking is defined on
+ * the base ".ri" class. Some views were authored with just `class="ri-foo"`
+ * (without the required `icon-base ri` prefix), which made the icons
+ * invisible. This rule applies the mask styles to any <i> element whose
+ * class begins with `ri-`, so legacy markup keeps working while the
+ * canonical `icon-base ri ri-foo` markup remains unaffected.
+ */
+i[class^="ri-"],
+i[class*=" ri-"] {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  -webkit-mask-image: var(--svg);
+          mask-image: var(--svg);
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+          mask-size: 100% 100%;
+  vertical-align: -0.125em;
+}

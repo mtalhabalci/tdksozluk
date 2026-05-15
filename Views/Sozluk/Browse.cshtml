@@ -1,0 +1,212 @@
+@model BrowseViewModel
+@{
+    ViewData["title"] = "Gözat";
+}
+
+<div class="mb-6">
+    <h4 class="mb-1">Sözlük Gözat</h4>
+    <p class="text-muted mb-0">Tema → Konu → Madde Başı hiyerarşisinde gezinin</p>
+</div>
+
+<!-- Arama -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="position-relative">
+            <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="Kelime ara..."
+                   autocomplete="off" />
+            <div id="searchResults" class="position-absolute w-100 bg-white shadow-lg rounded-bottom d-none"
+                 style="z-index: 1050; max-height: 300px; overflow-y: auto;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Breadcrumb -->
+@if (Model.SeciliTemaAd != null)
+{
+    <nav class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Browse">Tüm Temalar</a></li>
+            @if (Model.SeciliKonuAd != null)
+            {
+                <li class="breadcrumb-item"><a asp-action="Browse"
+                                                   asp-route-temaId="@Model.SeciliTemaId">@Model.SeciliTemaAd</a></li>
+                    <li class="breadcrumb-item active">@Model.SeciliKonuAd</li>
+                }
+            else
+                {
+                    <li class="breadcrumb-item active">@Model.SeciliTemaAd</li>
+                }
+            </ol>
+        </nav>
+    }
+
+    <div class="row">
+        @if (Model.SeciliKonuId == null && Model.Konular == null)
+        {
+            <!-- Tema Kartları -->
+            @foreach (var tema in Model.Temalar)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <a asp-action="Browse" asp-route-temaId="@tema.Id" class="text-decoration-none">
+                        <div class="card h-100 border-0 shadow-sm hover-shadow">
+                            <div class="card-body text-center py-5">
+                                <i class="ri-folder-line ri-3x text-primary mb-3 d-block"></i>
+                                <h5 class="card-title mb-2">@tema.Ad</h5>
+                                <div class="d-flex justify-content-center gap-3">
+                                    <span class="badge bg-label-info">@tema.KonuSayisi konu</span>
+                                    <span class="badge bg-label-primary">@tema.MaddeSayisi madde</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (!Model.Temalar.Any())
+            {
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center text-muted py-5">
+                            <i class="ri-folder-line ri-3x mb-2 d-block"></i>
+                            <p class="mb-0">Henüz tema eklenmemiş.</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else if (Model.Konular != null && Model.SeciliKonuId == null)
+        {
+            <!-- Konu Kartları -->
+            @foreach (var konu in Model.Konular)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <a asp-action="Browse" asp-route-konuId="@konu.Id" class="text-decoration-none">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center py-4">
+                                <i class="ri-file-list-line ri-2x text-info mb-2 d-block"></i>
+                                <h6 class="card-title mb-2">@konu.Ad</h6>
+                                <span class="badge bg-label-primary">@konu.MaddeSayisi madde</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+
+            @if (!Model.Konular.Any())
+            {
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center text-muted py-5">
+                            <p class="mb-0">Bu temada henüz konu yok.</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else if (Model.Maddeler != null)
+        {
+            <!-- Sol: Konu Listesi -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="mb-0">Konular</h6>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @if (Model.Konular != null)
+                        {
+                            @foreach (var k in Model.Konular)
+                            {
+                                <a asp-action="Browse" asp-route-konuId="@k.Id"
+                                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center @(k.Id == Model.SeciliKonuId ? "active" : "")">
+                                    @k.Ad
+                                    <span class="badge bg-primary rounded-pill">@k.MaddeSayisi</span>
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sağ: Madde Listesi -->
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">@Model.SeciliKonuAd — Maddeler (@(Model.Maddeler?.Count ?? 0))</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Kelime</th>
+                                    <th class="text-center">Anlam</th>
+                                    <th>Ekleyen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Maddeler == null || !Model.Maddeler.Any())
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">Bu konuda henüz madde yok.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var m in Model.Maddeler)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a asp-action="Detail" asp-route-id="@m.Id" class="fw-semibold text-primary">
+                                                    @m.Kelime
+                                                </a>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-label-primary rounded-pill">@m.AnlamSayisi</span>
+                                            </td>
+                                            <td class="text-muted">@m.OlusturanAd</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @section PageScripts {
+        <script>
+            (function () {
+                var input = document.getElementById('searchInput');
+                var results = document.getElementById('searchResults');
+                var debounce;
+
+                input.addEventListener('input', function () {
+                    clearTimeout(debounce);
+                    var q = this.value.trim();
+                    if (q.length < 2) { results.classList.add('d-none'); return; }
+                    debounce = setTimeout(function () {
+                        fetch('@Url.Action("Search", "Sozluk")?q=' + encodeURIComponent(q))
+                            .then(function (r) { return r.json(); })
+                            .then(function (data) {
+                                if (data.length === 0) {
+                                    results.innerHTML = '<div class="p-3 text-muted">Sonuç bulunamadı</div>';
+                                } else {
+                                    results.innerHTML = data.map(function (item) {
+                                        return '<a href="/Sozluk/Detail/' + item.id + '" class="d-block px-3 py-2 text-decoration-none border-bottom">'
+                                            + '<strong>' + item.kelime + '</strong> <small class="text-muted ms-2">' + item.konu + '</small></a>';
+                                    }).join('');
+                                }
+                                results.classList.remove('d-none');
+                            });
+                    }, 300);
+                });
+
+                document.addEventListener('click', function (e) {
+                    if (!input.contains(e.target) && !results.contains(e.target)) {
+                        results.classList.add('d-none');
+                    }
+                });
+            })();
+        </script>
+    }

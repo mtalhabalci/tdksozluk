@@ -1,0 +1,77 @@
+@model List<AspnetCoreMvcStarter.Models.Konu>
+@{
+    ViewData["title"] = "Konular";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <div>
+        <h4 class="mb-1">Konular</h4>
+        <p class="text-muted mb-0">Temaların altındaki konu başlıklarını yönetin</p>
+    </div>
+    <a asp-action="KonuEkle" asp-route-temaId="@ViewBag.SeciliTemaId" class="btn btn-primary">
+        <i class="ri-add-line me-1"></i> Yeni Konu
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible mb-4" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Tema filtresi -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="d-flex align-items-center gap-3">
+            <label class="form-label mb-0 fw-medium">Tema Filtresi:</label>
+            <select name="temaId" class="form-select" style="max-width: 300px;" onchange="this.form.submit()">
+                <option value="">Tümü</option>
+                @foreach (SelectListItem item in (SelectList)ViewBag.Temalar)
+                {
+                    <option value="@item.Value" selected="@item.Selected">@item.Text</option>
+                }
+            </select>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Konu Adı</th>
+                    <th>Tema</th>
+                    <th class="text-center" style="width: 150px">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-5">Henüz konu eklenmemiş.</td>
+                    </tr>
+                }
+                @foreach (var konu in Model)
+                {
+                    <tr>
+                        <td class="fw-medium">@konu.Ad</td>
+                        <td><span class="badge bg-label-info">@konu.Tema.Ad</span></td>
+                        <td class="text-center">
+                            <a asp-action="KonuDuzenle" asp-route-id="@konu.Id" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="ri-edit-line"></i>
+                            </a>
+                            <form asp-action="KonuSil" asp-route-id="@konu.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Bu konuyu silmek istediğinize emin misiniz?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i
+                                    class="ri-delete-bin-line"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
